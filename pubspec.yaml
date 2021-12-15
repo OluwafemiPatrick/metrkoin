@@ -1,0 +1,76 @@
+name: metrkoin
+description: A new Flutter project.
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+  shared_preferences: ^0.5.8
+  get: ^3.24.0
+  fluttertoast: ^7.0.1
+  flutter_spinkit: ^4.0.0
+  intl: ^0.16.1
+  image_picker: ^0.6.7+4
+  google_fonts: ^1.1.2
+  share_plus: ^1.2.0
+  url_launcher: ^5.7.10
+  connectivity: ^2.0.2
+  pull_to_refresh: ^1.6.5
+  google_mobile_ads: ^0.11.0+4
+
+  # game_arena dependencies:
+  sudoku_dart: '^0.0.8'
+  sprintf: "^4.0.0"
+  scoped_model: "^1.0.1"
+  modal_bottom_sheet: "^2.0.0"
+  hive: "^1.4.4"
+  hive_flutter: "^0.3.1"
+
+  # do not update any of these
+  firebase_auth: ^0.18.4+1
+  firebase_core: ^0.5.0
+  google_sign_in: ^4.5.9
+  provider: ^4.3.2
+  # ...
+
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.8.1
+  flutter_test:
+    sdk: flutter
+
+  hive_generator: ^0.7.1
+  build_runner: ^1.9.0
+
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/metrkoin.png"
+
+
+
+# The following section is specific to Flutter.
+flutter:
+
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+

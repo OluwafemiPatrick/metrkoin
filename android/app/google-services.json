@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "468890868531",
+    "project_id": "metrkoin",
+    "storage_bucket": "metrkoin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:468890868531:android:f03d6d9d8a64b6ddf2bc46",
+        "android_client_info": {
+          "package_name": "com.oopatrick.metrkoin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "468890868531-k0n7kdbo6lio80td06ehj4omq23ut0tg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oopatrick.metrkoin",
+            "certificate_hash": "72a061427819ebba74ce57dcf7be8cb3645e5001"
+          }
+        },
+        {
+          "client_id": "468890868531-c7k6b2sigcsaroj4faec8fdn685c11m1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyQVw-SoFUPLhQ6FsVhIuGEAPqeU7mVMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "468890868531-c7k6b2sigcsaroj4faec8fdn685c11m1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
