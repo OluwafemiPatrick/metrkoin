@@ -9,13 +9,6 @@ const VERSION_NUMBER = "1.1.0";
 
 const WEBSITE_URL = 'https://metrkoin.com';
 
+const BASE_URL = '52.15.155.23:5000/';
 
-int _mtrkBalance = 0;
 
-int get mtrkGlobalBalance {
-  return _mtrkBalance;
-}
-
-set mtrkGlobalBalance(int value) {
-  _mtrkBalance = value;
-}

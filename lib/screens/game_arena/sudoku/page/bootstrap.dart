@@ -155,6 +155,7 @@ Widget _newGameButton(BuildContext context) {
 
 
 class _BootstrapPageState extends State<BootstrapPage> {
+
   @override
   Widget build(BuildContext context) {
     Widget body = Container(
@@ -425,4 +426,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
         ] ),
     );
   }
+
+
 }

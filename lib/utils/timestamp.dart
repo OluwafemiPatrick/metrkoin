@@ -9,6 +9,6 @@ String getTimestamp() {
 
 String getCurrentDate() {
   DateTime now = DateTime.now();
-  String creationDate = DateFormat('EEE, MMM, d, ''yy').format(now);
+  String creationDate = DateFormat('EEE, MMM d ''yyyy').format(now);
   return creationDate;
 }

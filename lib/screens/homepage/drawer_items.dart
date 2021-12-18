@@ -7,11 +7,12 @@ import 'package:metrkoin/screens/homepage/faq.dart';
 import 'package:metrkoin/screens/invite_&_earn/invite_and_earn.dart';
 import 'package:metrkoin/screens/homepage/about.dart';
 import 'package:metrkoin/screens/withdraw_mtrk/withdraw.dart';
+import 'package:metrkoin/services/auth.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Widget drawerItems() {
+Widget drawerItems(BuildContext context) {
 
   double verticalMargin = 10.0;
   double iconPaddling = 6.0;
@@ -387,6 +388,38 @@ Widget drawerItems() {
                         child: Text('Log out', style: TextStyle(fontSize: _drawerTextSize, color: colorRed),),
                       )
                     ]),
+                onTap: () async {
+                  AuthServices auth = new AuthServices();
+
+                  await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            title: Text("Sure to logout?"),
+                            content: Text("You are about to log out of MetrKoin",
+                                style: TextStyle(fontSize: 14.0)),
+                            actions: [
+                              TextButton(
+                                child: Text("dismiss"),
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                              ),
+                              TextButton(
+                                child: Text("logout"),
+                                onPressed: () {
+                                  Navigator.pop(context, true);
+                                },
+                              )
+                            ]);
+                      }).then((val) async {
+                    bool confirm = val;
+                    if (confirm == true) {
+                      await auth.signOut();
+                      Navigator.pop(context);
+                    }
+                  });
+                },
               ),
             ),
 

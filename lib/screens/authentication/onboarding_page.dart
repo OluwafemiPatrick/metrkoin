@@ -1,16 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:metrkoin/screens/authentication/sign_up_page.dart';
-import 'package:metrkoin/screens/homepage/homepage.dart';
+import 'package:metrkoin/services/auth.dart';
 import 'package:metrkoin/utils/buttons.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:metrkoin/utils/metrkoin_logo.dart';
+import 'package:metrkoin/utils/spinner.dart';
 
 class OnboardingPage extends StatefulWidget {
 
-  @override
   _OnboardingPageState createState() => _OnboardingPageState();
 }
 
@@ -19,12 +21,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final int _numPages = 3;
   final PageController _pageController = PageController(initialPage: 0);
+  AuthServices _auth = new AuthServices();
+
   int _currentPage = 0;
   double _textSize = 15.0;
+  bool _isLoading = false;
 
   String _message1 = "  immerse yourself in fun, easy games\n ";
   String _message2 = "  earn MTRK for every challenge you complete\n ";
   String _message3 = "  withdraw coin into any wallet of your choice\n ";
+  String _error = '';
 
 
   @override
@@ -126,16 +132,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
               children: _buildPageIndicator(),
             ),
             Spacer(flex: 2,),
-            DefaultButtonPurple('Get Started', () {
-              Get.to(
-                SignUpPage(),
-                transition: Transition.rightToLeft,
-                duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-              );
-            }),
-            SizedBox(height: 20.0,),
-            signInButton(),
-            SizedBox(height: 20.0,)
+            _isLoading ? Spinner() : Container(child: Column(
+              children: [
+                DefaultButtonPurple('Get Started', () {
+                  Get.to(
+                    SignUpPage(),
+                    transition: Transition.rightToLeft,
+                    duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
+                  );
+                }),
+                SizedBox(height: 20.0,),
+                signInButton(),
+                SizedBox(height: 10.0,),
+                if (_error.isNotEmpty)
+                  Text(_error,
+                    style: TextStyle(fontSize: 13.0, color: colorRed),
+                    textAlign: TextAlign.center,),
+              ],
+            ),),
+            SizedBox(height: 10.0,)
           ],
         ),
       ),
@@ -164,8 +179,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
 
-
   Widget signInButton() {
+
     return Container(
       height: 44.0,
       width: MediaQuery.of(context).size.width*0.9,
@@ -183,14 +198,49 @@ class _OnboardingPageState extends State<OnboardingPage> {
           elevation: 2,
         ),
         onPressed: () async {
-          Get.to(
-            HomePage(),
-            transition: Transition.rightToLeft,
-            duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-          );
+          setState(() {
+            _isLoading = true;
+            _error = '';
+          });
+          signInWithGoogle();
         },
       ),
     );
+  }
+
+
+  Future<User> signInWithGoogle() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+      var result = await _auth.isEmailExist(googleSignInAccount.email);
+
+      if (result == true) {
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+            idToken: googleSignInAuthentication.idToken, accessToken: googleSignInAuthentication.accessToken);
+
+        UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
+        User user = userCredential.user;
+        assert(!user.isAnonymous);
+
+        return user;
+      }
+      else if (result == false) {
+        setState(() {
+          _error = 'Error! email does not exist, please sign up instead';
+          _isLoading = false;
+        });
+        return null;
+      }
+    }
+    catch (e) {
+      print(e.toString());
+      setState(() => _error = e.toString());
+      return null;
+    }
   }
 
 
