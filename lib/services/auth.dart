@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'package:metrkoin/models/authentication/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthServices{
@@ -98,33 +97,6 @@ class AuthServices{
       return data;
     }
 
-  }
-
-  Future<User> signUpWithGoogle() async {
-    try {
-      final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken);
-
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-      final User user = userCredential.user;
-
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
-
-      final User currentUser = _auth.currentUser;
-
-      assert(currentUser.uid == user.uid);
-      return user;
-    }
-    catch (e) {
-      print(e.toString());
-      return null;
-    }
   }
 
 

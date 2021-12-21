@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:metrkoin/screens/authentication/sign_up_page.dart';
+import 'package:metrkoin/screens/homepage/homepage.dart';
 import 'package:metrkoin/services/auth.dart';
 import 'package:metrkoin/utils/buttons.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:metrkoin/utils/metrkoin_logo.dart';
 import 'package:metrkoin/utils/spinner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingPage extends StatefulWidget {
 
@@ -198,11 +200,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
           elevation: 2,
         ),
         onPressed: () async {
-          setState(() {
-            _isLoading = true;
-            _error = '';
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          preferences.setString('user_id', "E7WEGxuZjfBQhJP2cmpxuy5CMEE9sQ5j").then((value) {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
           });
-          signInWithGoogle();
+
+          // setState(() {
+          //   _isLoading = true;
+          //   _error = '';
+          // });
+          // signInWithGoogle();
+
         },
       ),
     );

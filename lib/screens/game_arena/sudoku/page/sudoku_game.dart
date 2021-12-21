@@ -11,13 +11,14 @@ import 'package:metrkoin/screens/game_arena/sudoku/page/sudoku_pause_cover.dart'
 import 'package:metrkoin/screens/game_arena/sudoku/state/sudoku_state.dart';
 import 'package:metrkoin/screens/game_arena/sudoku/sudoku_info.dart';
 import 'package:metrkoin/services/ad_helper.dart';
-import 'package:metrkoin/utils/app_bar.dart';
+import 'package:metrkoin/services/api_calls.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:metrkoin/utils/metrkoin_logo.dart';
-import 'package:metrkoin/utils/spinner.dart';
+import 'package:metrkoin/utils/timestamp.dart';
 import 'package:metrkoin/utils/toast.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sudoku_dart/sudoku_dart.dart';
 
 
@@ -37,7 +38,6 @@ class _SudokuGamePageState extends State<SudokuGamePage>
 
   Timer _timer;
   AdListener listenerT = AdListener();
-
   SudokuState get _state => ScopedModel.of<SudokuState>(context);
   bool _isOnlyReadGrid(int index) => _state.sudoku.puzzle[index] != -1;
 
@@ -77,7 +77,6 @@ class _SudokuGamePageState extends State<SudokuGamePage>
         break;
     }
   }
-
 
   void _gaming() {
     if (_state.status == SudokuGameStatus.pause) {
@@ -190,23 +189,34 @@ class _SudokuGamePageState extends State<SudokuGamePage>
   final RewardedAd lifeAdReward = RewardedAd(
     adUnitId: AdHelper.sudokuLifeAdUnit,
     request: AdRequest(),
-    listener: AdListener(
-      onRewardedAdUserEarnedReward: (RewardedAd ad, RewardItem reward) {
-        print('LEVEL IS IS IS LEVEL' );
-      },
-    ),
+    listener: AdListener(),
   );
 
 
-  void _gameOver() {
+  void _gameOver() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString('user_id');
     bool isWinner = _state.status == SudokuGameStatus.success;
     String title, conclusion;
+    int rewardAmount;
+    setState(() {
+      if (_state.level == LEVEL.EASY) rewardAmount = 1000;
+      if (_state.level == LEVEL.MEDIUM) rewardAmount = 1500;
+      if (_state.level == LEVEL.HARD) rewardAmount = 2000;
+      if (_state.level == LEVEL.EXPERT) rewardAmount = 2500;
+    });
     if (isWinner) {
       title = "Good Job!";
-      conclusion = "Congratulations on your completion [${LEVEL_NAMES[_state.level]}] Sudoku Challenge";
+      conclusion = "Congratulations on your completion of the Sudoku Challenge";
+      List<String> sudokuGameSavedData = [getTimestamp(), rewardAmount.toString()];
+      prefs.setStringList('sudoku_game_saved_data', sudokuGameSavedData);
+      var result = await updateUserBalanceForSudoku(userId, getTimestamp(), rewardAmount);
+      if (result == true) {
+        prefs.remove('sudoku_game_saved_data');
+      }
     } else {
-      title = "Failure";
-      conclusion = "Unfortunately, this round [${LEVEL_NAMES[_state.level]}] Sudoku has too many errors，Challenge failed!";
+      title = "Game Over";
+      conclusion = "Unfortunately, you have lost this round of Sudoku Challenge, please try again";
     }
 
     Navigator.of(context)
@@ -226,34 +236,22 @@ class _SudokuGamePageState extends State<SudokuGamePage>
                               alignment: Alignment.center,
                               child: Text(title,
                                   style: TextStyle(
-                                      color: isWinner
-                                          ? Colors.black
-                                          : Colors.redAccent,
+                                      color: isWinner ? Colors.black : Colors.redAccent,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold)))),
                       Expanded(
                           flex: 2,
                           child: Column(children: [
-                            Text(conclusion,
-                                style: TextStyle(fontSize: 15)),
+                            Text(conclusion, style: TextStyle(fontSize: 15)),
                             Container(
                                 margin: EdgeInsets.fromLTRB(0, 15, 0, 10),
-                                child: Text("time cost  ${_state.timer}'s",
+                                child: Text("Duration  ${_state.timer}'s",
                                     style: TextStyle(color: Colors.blue))),
                             Container(
                                 padding: EdgeInsets.all(10),
                                 child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Offstage(
-                                          offstage: _state.status ==
-                                              SudokuGameStatus.success,
-                                          child: IconButton(
-                                              icon: Icon(Icons.tv),
-                                              onPressed: () {
-                                                Navigator.pop(context, "ad");
-                                              })),
                                       IconButton(
                                           icon: Icon(Icons.thumb_up),
                                           onPressed: () {
@@ -273,7 +271,6 @@ class _SudokuGamePageState extends State<SudokuGamePage>
       String signal = value;
       switch (signal) {
         case "ad":
-        // @TODO give a extra life
           break;
         case "exit":
         default:
@@ -306,14 +303,12 @@ class _SudokuGamePageState extends State<SudokuGamePage>
           if (_state.record[_chooseSudokuBox] != -1 &&
               _state.sudoku.answer[_chooseSudokuBox] != num) {
 
-            print ('ANSWER TO THE BOX IS ---' + _state.sudoku.answer[_chooseSudokuBox].toString());
             // Fill in the wrong number
             _state.lifeLoss();
             if (_state.life <= 0) {
               // game over
               return _gameOver();
             }
-
             return;
           }
           // Judging the progress
@@ -495,6 +490,24 @@ class _SudokuGamePageState extends State<SudokuGamePage>
   }
 
 
+  _rewardUserForLifeAds() {
+    if (_state.level==LEVEL.EASY || _state.level==LEVEL.MEDIUM) {
+      setState(() => _state.life += 4);
+    }
+    if (_state.level==LEVEL.HARD || _state.level==LEVEL.EXPERT) {
+      setState(() => _state.life += 2);
+    }
+  }
+
+  _rewardUserForHintAds() {
+    if (_state.level==LEVEL.EASY || _state.level==LEVEL.MEDIUM) {
+      setState(() => _state.hint += 2);
+    }
+    if (_state.level==LEVEL.HARD || _state.level==LEVEL.EXPERT) {
+      setState(() => _state.hint += 1);
+    }
+  }
+
   _onMenuItemSelected(MenuButtonDropDown mButton) async {
 
     if (mButton.menuButtonItems == 'pause'){
@@ -520,9 +533,10 @@ class _SudokuGamePageState extends State<SudokuGamePage>
     }
     if (mButton.menuButtonItems == 'get hint'){
       hintAdReward.show();
+      await hintAdReward.show().then((value) => _rewardUserForHintAds());
     }
     if (mButton.menuButtonItems == 'redeem life'){
-      lifeAdReward.show();
+      await lifeAdReward.show().then((value) => _rewardUserForLifeAds());
     }
     if (mButton.menuButtonItems == 'info'){
       Get.to(

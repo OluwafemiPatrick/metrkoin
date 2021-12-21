@@ -5,9 +5,11 @@ import 'package:metrkoin/utils/app_bar.dart';
 import 'package:metrkoin/utils/buttons.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
-import 'package:metrkoin/utils/metrkoin_logo.dart';
 
 class WithdrawMTRK extends StatefulWidget {
+
+  final String mtrkBalance;
+  WithdrawMTRK(this.mtrkBalance);
 
   @override
   _WithdrawMTRKState createState() => _WithdrawMTRKState();
@@ -15,8 +17,17 @@ class WithdrawMTRK extends StatefulWidget {
 
 class _WithdrawMTRKState extends State<WithdrawMTRK> {
 
-  String _withdrawalAddress='', _amountToWithdraw='', _mtrkBalance='0.0000';
+  String _withdrawalAddress='', _amountToWithdraw='', _mtrkBalance='0';
+  bool _isError = false;
+  String errorMsg = '';
 
+  @override
+  void initState() {
+    setState(() {
+      _mtrkBalance = widget.mtrkBalance;
+    });
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -43,14 +54,32 @@ class _WithdrawMTRKState extends State<WithdrawMTRK> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: DefaultButtonPurple('Withdraw', () {
-                    Get.to(
-                      WithdrawMTRK2('33500', 'klngif904o43j904gng9034g'),
-                      transition: Transition.rightToLeft,
-                      duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                    );
+
+                    if (_withdrawalAddress.isNotEmpty && _amountToWithdraw.isNotEmpty) {
+                      double amount = double.parse(_amountToWithdraw);
+                      double balance = double.parse(_mtrkBalance);
+
+                      if (amount >= 30000) {
+                        if (balance >= amount) {
+                          Get.to(
+                            WithdrawMTRK2(_amountToWithdraw, _withdrawalAddress),
+                            transition: Transition.rightToLeft,
+                            duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
+                          );
+                        }
+                        else setState(() => errorMsg = 'you do not have sufficient balance');
+                      }
+                      else setState(() => errorMsg = 'withdrawal amount cannot be less than 30,000 MTRK');
+                    }
+                    else setState(() => _isError = true);
+
                   }),
                 ),
-                SizedBox(height: 20.0),
+                SizedBox(height: 8.0),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(errorMsg, style: TextStyle(fontSize: 13.0, color: colorRed),)),
+                SizedBox(height: 15.0),
               ] ),
         )
     );
@@ -58,13 +87,13 @@ class _WithdrawMTRKState extends State<WithdrawMTRK> {
 
 
   Widget accountBalance() {
-    double usdEarning = 0.00;
+    double usdEarning = 0.0;
     return Container(
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0, right: 5.0),
-      padding: EdgeInsets.only(top: 20.0, bottom: 12.0, left: 10.0, right: 10.0),
+      padding: EdgeInsets.only(top: 10.0, bottom: 6.0),
+      margin: EdgeInsets.symmetric(horizontal: 5.0),
+      height: 120.0,
       decoration: new BoxDecoration(
-        color: colorBlue,
         borderRadius: BorderRadius.circular(10.0),
         gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -74,47 +103,39 @@ class _WithdrawMTRKState extends State<WithdrawMTRK> {
         ),
       ),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-                children: [
-                  Container(
-                      width: MediaQuery.of(context).size.width * 0.25,
-                      child: Image.asset('assets/icons/coin_logo.png', height: 50.0, width: 50.0,)
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('MOK Token Balance', style: TextStyle(fontSize: 13.0, color: colorWhite),),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text('$_mtrkBalance MOK',
-                              style: TextStyle(fontSize: 18.0, color: colorWhite)),
-                        ),
-                        Text('\$' + usdEarning.toStringAsFixed(4) + ' USD',
-                            style: TextStyle(fontSize: 12.0, color: colorWhite)),
+            Text('MTRK Balance', style: TextStyle(fontSize: 13.0, color: colorWhite),),
+            Container(
+                height: 60.0,
+                child: Row(
+                    children: [
+                      Expanded(child: SizedBox(
+                          height: 50.0,
+                          width: 50.0,
+                          child: Image.asset('assets/icons/coin_logo.png'))),
+                      Expanded(child: Text(_mtrkBalance!=null ? _mtrkBalance : '0',
+                        style: TextStyle(fontSize: 24.0, color: colorWhite),
+                        textAlign: TextAlign.center,
+                      )),
+                      Expanded(child: Container(child: null,))
+                    ] )
+            ),
+            Text('\$' + usdEarning.toStringAsFixed(4) +' USD',
+              style: TextStyle(fontSize: 12.0, color: colorWhite),),
+          ] ),
 
-                      ],),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    child: null,
-                  ),
-                ] ),
-          ]),
     );
   }
 
 
   Widget withdrawContainers() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 55.0,
             width: MediaQuery.of(context).size.width,
-            margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 20.0, bottom: 15.0),
+            margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 20.0,),
             padding: EdgeInsets.only(top: 3.0, left: 15.0),
             decoration: new BoxDecoration(
               color: Colors.transparent,
@@ -132,14 +153,21 @@ class _WithdrawMTRKState extends State<WithdrawMTRK> {
               onChanged: (value){
                 setState(() {
                   _withdrawalAddress = value;
+                  _isError = false;
                 });
               },
             ),
           ),
+          if (_isError)
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Text('all fields are required', style: TextStyle(fontSize: 12.0, color: colorRed),),
+            ),
+          SizedBox(height: 15.0,),
           Container(
             height: 55.0,
             width: MediaQuery.of(context).size.width,
-            margin: EdgeInsets.only(left: 15.0, right: 15.0, bottom: 30.0),
+            margin: EdgeInsets.only(left: 15.0, right: 15.0,),
             padding: EdgeInsets.only(top: 3.0, left: 15.0),
             decoration: new BoxDecoration(
               color: Colors.transparent,
@@ -155,12 +183,22 @@ class _WithdrawMTRKState extends State<WithdrawMTRK> {
               ),
               style: TextStyle(fontSize: 15.0, color: colorBlack),
               onChanged: (value){
-                setState(() => _amountToWithdraw = value );
+                setState(() {
+                  _amountToWithdraw = value;
+                  _isError = false;
+                });
               },
             ),
           ),
+          if (_isError)
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Text('all fields are required', style: TextStyle(fontSize: 12.0, color: colorRed),),
+            ),
+          SizedBox(height: 30.0,)
         ]);
   }
+
 
 
 

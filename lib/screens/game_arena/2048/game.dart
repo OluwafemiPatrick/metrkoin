@@ -1,5 +1,6 @@
 import 'dart:math' show Random;
 
+import 'package:metrkoin/screens/game_arena/2048/g2048_getter_and_setter.dart';
 import 'package:metrkoin/utils/timestamp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +27,7 @@ class Game {
         ));
       }
     }
+    print ('BOARD CELL LENGTH IS ' + _boardCells.length.toString());
     score = 0;
     earning = 0;
     resetMergeStatus();
@@ -34,9 +36,16 @@ class Game {
 
 
   void init2(int scoreH, earningH) {
-    _boardCells = List<List<BoardCell>>();
+    List<BoardCell> emptyCells = <BoardCell>[];
+    _boardCells.forEach((cells) {
+      emptyCells.addAll(cells.where((cell) {
+        return cell.isEmpty();
+      }));
+    });
+
+    _boardCells = <List<BoardCell>>[];
     for (int r = 0; r < row; ++r) {
-      _boardCells.add(List<BoardCell>());
+      _boardCells.add(<BoardCell>[]);
       for (int c = 0; c < column; ++c) {
         _boardCells[r].add(BoardCell(
           row: r,
@@ -197,7 +206,8 @@ class Game {
     if (b.isEmpty()) {
       b.number = a.number;
       a.number = 0;
-    } else if (a == b) {
+    }
+    else if (a == b) {
       print ('VALUE OF A IS ' + a.number.toString());
       print ('VALUE OF B IS ' + b.number.toString());
       b.number = b.number * 2;
@@ -263,24 +273,24 @@ class Game {
     emptyCells[2].number = 0;
     emptyCells[3].number = 0;
 
-    emptyCells[4].number = emptyCells[4].number;
-    emptyCells[5].number = emptyCells[5].number;
-    emptyCells[6].number = emptyCells[6].number;
-    emptyCells[7].number = emptyCells[7].number;
-    emptyCells[8].number = emptyCells[8].number;
-    emptyCells[9].number = emptyCells[9].number;
-    emptyCells[10].number = emptyCells[10].number;
-    emptyCells[11].number = emptyCells[11].number;
-    emptyCells[12].number = emptyCells[12].number;
-    emptyCells[13].number = emptyCells[13].number;
-    emptyCells[14].number = emptyCells[14].number;
-    emptyCells[15].number = emptyCells[15].number;
+    print ('CELL NUMBER 1 IS ' + cellBoxOne.toString());
+    print ('CELL NUMBER 2 IS ' + cellBoxTwo.toString());
+    print ('CELL NUMBER 3 IS ' + cellBoxThree.toString());
+    print ('CELL NUMBER 4 IS ' + cellBoxFour.toString());
+    print ('CELL NUMBER 5 IS ' + cellBoxFive.toString());
+    print ('CELL NUMBER 6 IS ' + cellBoxSix.toString());
+    print ('CELL NUMBER 7 IS ' + cellBoxSeven.toString());
+    print ('CELL NUMBER 8 IS ' + cellBoxEight.toString());
+    print ('CELL NUMBER 9 IS ' + cellBoxNine.toString());
+    print ('CELL NUMBER 10 IS ' + cellBoxTen.toString());
+    print ('CELL NUMBER 11 IS ' + cellBoxEleven.toString());
+    print ('CELL NUMBER 12 IS ' + cellBoxTwelve.toString());
 
   }
 
 
   void randomEmptyCell(int cnt) {
-    List<BoardCell> emptyCells = List<BoardCell>();
+    List<BoardCell> emptyCells = <BoardCell>[];
     _boardCells.forEach((cells) {
       emptyCells.addAll(cells.where((cell) {
         return cell.isEmpty();

@@ -12,7 +12,9 @@ import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Widget drawerItems(BuildContext context) {
+Widget drawerItems(BuildContext context, String username, referralCode, totalReferral,
+    totalRefEarning, totalSubReferral, totalSubRefEarning, mtrkBalance, unixTimestamp,
+    timestamp) {
 
   double verticalMargin = 10.0;
   double iconPaddling = 6.0;
@@ -63,7 +65,7 @@ Widget drawerItems(BuildContext context) {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 5.0),
-                        child: Text('MetrKoin User', style: TextStyle(fontSize: 13.0, color: colorBlack),),
+                        child: Text(username, style: TextStyle(fontSize: 13.0, color: colorBlack),),
                       )
                     ],
                   ),
@@ -118,7 +120,7 @@ Widget drawerItems(BuildContext context) {
                     ]),
                 onTap: () {
                   Get.to(
-                    InviteAndEarn('u4gfuiefbf'),
+                    InviteAndEarn(referralCode, totalReferral, totalRefEarning, totalSubReferral, totalSubRefEarning),
                     transition: Transition.rightToLeft,
                     duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                   );
@@ -145,7 +147,7 @@ Widget drawerItems(BuildContext context) {
                     ]),
                 onTap: () {
                   Get.to(
-                    WithdrawMTRK(),
+                    WithdrawMTRK(mtrkBalance),
                     transition: Transition.rightToLeft,
                     duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                   );
@@ -172,7 +174,7 @@ Widget drawerItems(BuildContext context) {
                     ]),
                 onTap: () {
                   Get.to(
-                    DailyReward(),
+                    DailyReward(unixTimestamp, timestamp),
                     transition: Transition.rightToLeft,
                     duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                   );
@@ -204,26 +206,6 @@ Widget drawerItems(BuildContext context) {
                     duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                   );
                 },
-              ),
-            ),
-            Container(
-              height: 32.0,
-              margin: EdgeInsets.symmetric(vertical: verticalMargin),
-              padding: EdgeInsets.only(left: iconPaddling),
-              child: GestureDetector(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.circle,
-                        color: colorBlue,
-                        size: _iconSize,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: iconToTextPad),
-                        child: Text('Update Profile', style: TextStyle(fontSize: _drawerTextSize),),
-                      )
-                    ]),
               ),
             ),
             Container(
@@ -293,6 +275,27 @@ Widget drawerItems(BuildContext context) {
                     duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                   );
                 },
+              ),
+            ),
+            Container(
+              height: 32.0,
+              margin: EdgeInsets.symmetric(vertical: verticalMargin),
+              padding: EdgeInsets.only(left: iconPaddling),
+              child: GestureDetector(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color: colorBlue,
+                        size: _iconSize,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: iconToTextPad),
+                        child: Text('Terms of Service', style: TextStyle(fontSize: _drawerTextSize),),
+                      )
+                    ]),
+                onTap: () { },
               ),
             ),
             Padding(

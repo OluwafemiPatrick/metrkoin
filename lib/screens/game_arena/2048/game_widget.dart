@@ -13,6 +13,7 @@ import 'package:metrkoin/utils/timestamp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'colors.dart';
+import 'g2048_getter_and_setter.dart';
 
 class GameWidget extends StatefulWidget {
 
@@ -229,7 +230,34 @@ class _GameWidgetState extends State<GameWidget> {
   _onMenuItemSelected(G2048ButtonDropDown mButton) async {
 
     if (mButton.g2048ButtonItems == 'new game') {
-      newGame();
+      await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+                title: Text("You are about to reset the game", style: TextStyle(fontSize: 16.0),),
+                content: Text('all progress will be lost',
+                    textAlign: TextAlign.center, style: TextStyle(fontSize: 14.0)
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("dismiss"),
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                  ),
+                  TextButton(
+                    child: Text("new game"),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    },
+                  )
+                ]);
+          }).then((val) {
+        bool confirm = val;
+        if (confirm == true) {
+          newGame();
+        }
+      });
     }
     if (mButton.g2048ButtonItems == 'get hint') {
       _newGame2();
@@ -326,10 +354,97 @@ class BoardGridWidget extends StatelessWidget {
 class AnimatedCellWidget extends AnimatedWidget {
 
   final BoardCell cell;
+  BoardCell cell2 = new BoardCell(row: 0);
   final _GameWidgetState state;
+
   AnimatedCellWidget(
       {Key key, this.cell, this.state, Animation<double> animation})
       : super(key: key, listenable: animation);
+
+  _saveValue(int row, column, number) {
+
+    for (int r=0; r<row; r++) {
+      for (int c=0; c<column; c++) {
+        print ("Row $r Column $c is : $number");
+      }
+    }
+
+    // if (row==1 && column==0) {
+    //   if (number != null) {
+    //     cellBoxOne = number;
+    //   } else cellBoxOne = 0;
+    //   print ("Row 1 Column 0 is : $cellBoxOne");
+    // }
+    // if (row==1 && column==1) {
+    //   if (number != null) {
+    //     cellBoxTwo = number;
+    //   } else cellBoxTwo = 0;
+    //   print ("Row 1 Column 1 is : $cellBoxTwo");
+    // }
+    // if (row==1 && column==2) {
+    //   if (number != null) {
+    //     cellBoxThree = number;
+    //   }
+    //   else cellBoxThree = 0;
+    //   print ("Row 1 Column 2 is : $cellBoxThree");
+    // }
+    // if (row==1 && column==3) {
+    //   if (number != null) {
+    //     cellBoxFour = number;
+    //   } else cellBoxFour = 0;
+    //   print ("Row 1 Column 3 is : $cellBoxFour");
+    // }
+    // if (row==2 && column==0) {
+    //   if (number != null) {
+    //     cellBoxFive = number;
+    //   } else cellBoxFive = 0;
+    //   print ("Row 2 Column 0 is : $cellBoxFive");
+    // }
+    // if (row==2 && column==1) {
+    //   if (number != null) {
+    //     cellBoxSix = number;
+    //   } else cellBoxSix = 0;
+    //   print ("Row 2 Column 1 is : $cellBoxSix");
+    // }
+    // if (row==2 && column==2) {
+    //   if (number != null) {
+    //     cellBoxSeven = number;
+    //   } else cellBoxSeven = 0;
+    //   print ("Row 2 Column 2 is : $cellBoxSeven");
+    // }
+    // if (row==2 && column==3) {
+    //   if (number != null) {
+    //     cellBoxEight = number;
+    //   } else cellBoxEight = 0;
+    //   print ("Row 2 Column 3 is : $cellBoxEight");
+    // }
+    // if (row==3 && column==0) {
+    //   if (number != null) {
+    //     cellBoxNine = number;
+    //   } else cellBoxNine = 0;
+    //   print ("Row 3 Column 0 is : $cellBoxNine");
+    // }
+    // if (row==3 && column==1) {
+    //   if (number != null) {
+    //     cellBoxTen = number;
+    //   } else cellBoxTen = 0;
+    //   print ("Row 3 Column 1 is : $cellBoxTen");
+    // }
+    // if (row==3 && column==2) {
+    //   if (number != null) {
+    //     cellBoxEleven = number;
+    //   } else cellBoxEleven = 0;
+    //   print ("Row 3 Column 2 is : $cellBoxEleven");
+    // }
+    // if (row==3 && column==3) {
+    //   if (number != null) {
+    //     cellBoxTwelve = number;
+    //   } else cellBoxTwelve = 0;
+    //   print ("Row 3 Column 3 is : $cellBoxTwelve");
+    // }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +456,8 @@ class AnimatedCellWidget extends AnimatedWidget {
     if (cell.number == 0) {
       return Container();
     } else {
+      _saveValue(cell.row, cell.column, cell.number);
+
       return CellBox(
         left: (cell.column * width + state.cellPadding * (cell.column + 1)) +
             width / 2 * (1 - animationValue),
@@ -348,14 +465,12 @@ class AnimatedCellWidget extends AnimatedWidget {
             state.cellPadding * (cell.row + 1) + width / 2 * (1 - animationValue),
         size: width * animationValue,
         color: boxColor.containsKey(cell.number)
-            ? boxColor[cell.number]
-            : boxColor[boxColor.keys.last],
+            ? boxColor[cell.number] : boxColor[boxColor.keys.last],
         text: Text(
           cell.number.toString(),
           style: TextStyle(
             fontSize: 30.0 * animationValue,
             fontWeight: FontWeight.bold,
-           // color: cell.number < 32 ? Colors.grey[600] : Colors.grey[50],
             color: colorWhite
           ),
         ),

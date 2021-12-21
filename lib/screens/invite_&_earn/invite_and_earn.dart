@@ -11,7 +11,14 @@ import 'package:share_plus/share_plus.dart';
 class InviteAndEarn extends StatefulWidget {
 
   final String referralCode;
-  InviteAndEarn(this.referralCode);
+  final String totalReferral;
+  final String totalRefEarning;
+  final String totalSubReferral;
+  final String totalSubRefEarning;
+
+
+  InviteAndEarn(this.referralCode, this.totalReferral, this.totalRefEarning,
+      this.totalSubReferral, this.totalSubRefEarning);
 
   @override
   _InviteAndEarnState createState() => _InviteAndEarnState();
@@ -225,6 +232,10 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
   Future _getReferralCode() async {
     setState(() {
       _referralCode = widget.referralCode;
+      _referralCount = widget.totalReferral;
+      _referralEarnings = widget.totalRefEarning;
+      _subLevelRefEarning = widget.totalSubRefEarning;
+      _subLevelRefCount = widget.totalSubReferral;
     });
   }
 

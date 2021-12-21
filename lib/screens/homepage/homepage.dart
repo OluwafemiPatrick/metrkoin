@@ -3,14 +3,15 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:metrkoin/screens/account_log/account_log.dart';
 import 'package:metrkoin/screens/game_arena/game_arena.dart';
-import 'package:metrkoin/screens/homepage/about.dart';
 import 'package:metrkoin/screens/homepage/calculator.dart';
 import 'package:metrkoin/screens/homepage/drawer_items.dart';
 import 'package:metrkoin/screens/withdraw_mtrk/withdraw.dart';
 import 'package:metrkoin/services/ad_helper.dart';
+import 'package:metrkoin/services/api_calls.dart';
 import 'package:metrkoin/utils/app_bar.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../daily_reward/daily_reward.dart';
@@ -24,7 +25,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  String _mtrkBalance = '0.000';
+  String _mtrkBalance = '0', _referralCode = '', _referralEarning = '',
+      _referralSubEarning = '', _totalRefCount = '', _totalSubRefCount = '',
+      _username = '', _unixTimeStamp='', _lastRewardTime='';
+
 
   final BannerAd myBanner = BannerAd(
     adUnitId: AdHelper.homePageBannerAdUnit,
@@ -33,17 +37,12 @@ class _HomePageState extends State<HomePage> {
     listener: AdListener(),
   );
 
-  final InterstitialAd myInterstitial = InterstitialAd(
-    adUnitId: AdHelper.homeInterstitialAdUnit,
-    request: AdRequest(),
-    listener: interstitialListener,
-  );
-
 
   @override
   void initState() {
+    _fetchUserHomeData();
+    _checkForPendingUploads();
     myBanner.load();
-    myInterstitial.load();
     super.initState();
   }
 
@@ -51,7 +50,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(),
-      drawer: drawerItems(context),
+      drawer: drawerItems(context, _username, _referralCode, _totalRefCount,
+          _referralEarning, _totalSubRefCount, _referralSubEarning,
+          _mtrkBalance, _unixTimeStamp, _lastRewardTime),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -59,246 +60,6 @@ class _HomePageState extends State<HomePage> {
         color: colorGreyBg,
         child: _body(),
       ),
-    );
-  }
-
-  Widget _body2() {
-    double _iconSpacing = 10.0;
-    AdWidget adWidget = AdWidget(ad: myBanner);
-    return Column(
-      children: [
-        accountBalance(),
-        Container(
-          margin: EdgeInsets.only(top: 10.0, bottom: 5.0),
-          height: MediaQuery.of(context).size.height * 0.12,
-          child: Center(child: adWidget),
-        ),
-        Expanded(
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: colorPurple,
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorPurpleLMain, colorBlue]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset("assets/images/icon_game.png", color: colorWhite),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("Game Arena", style: TextStyle(fontSize: 14.0, color: colorWhite)),
-                            ])
-                    ),
-                    onTap: () {
-                      Get.to(
-                        GameArena(),
-                        transition: Transition.rightToLeft,
-                        duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                      );
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: colorButtonGrey,
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorPurpleLMain, colorGoogle]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset("assets/images/icon_reward.png", color: colorWhite),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("Daily Reward", style: TextStyle(fontSize: 14.0, color: colorWhite),)
-                            ])
-                    ),
-                    onTap: () {
-                      myInterstitial.show();
-                      // Get.to(
-                      //   DailyReward(),
-                      //   transition: Transition.rightToLeft,
-                      //   duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                      // );
-                    },
-                  ),
-                )
-              ]),
-        ),
-        Expanded(
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: colorRed,
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorGoogle, colorPurpleLMain]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset("assets/images/icon_wallet.png", color: colorWhite),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("Account Log", style: TextStyle(fontSize: 14.0, color: colorWhite)),
-                            ])
-                    ),
-                    onTap: () {
-                      Get.to(
-                        AccountLog(),
-                        transition: Transition.rightToLeft,
-                        duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                      );
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorBlueMain, colorGold]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Image.asset("assets/images/icon_withdraw.png", color: colorWhite),
-                                ),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("Withdraw MTRK", style: TextStyle(fontSize: 14.0, color: colorWhite),),
-                            ])
-                    ),
-                    onTap: () {
-                      Get.to(
-                        WithdrawMTRK(),
-                        transition: Transition.rightToLeft,
-                        duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                      );
-                    },
-                  ),
-                )
-              ]),
-        ),
-        Expanded(
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: colorPurple,
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorPurpleLMain, colorBlue]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset("assets/images/icon_support.png", color: colorWhite),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("Support", style: TextStyle(fontSize: 14.0, color: colorWhite)),
-                            ])
-                    ),
-                    onTap: () => launch(_emailLaunchFunction()),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: colorButtonGrey,
-                          borderRadius: BorderRadius.circular(12.0),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0.0, 1.0],
-                              colors: [colorPurpleLMain, colorGoogle]
-                          ),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(vertical: _iconSpacing, horizontal: _iconSpacing),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset("assets/images/icon_about.png", color: colorWhite),
-                              ),
-                              SizedBox(height: 5.0),
-                              Text("About MetrKoin", style: TextStyle(fontSize: 14.0, color: colorWhite),)
-                            ])
-                    ),
-                    onTap: () {
-                      Get.to(
-                        AboutMetrKoin(),
-                        transition: Transition.rightToLeft,
-                        duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                      );
-                    },
-                  ),
-                )
-              ]),
-        ),
-      ],
     );
   }
 
@@ -379,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       Get.to(
-                        DailyReward(),
+                        DailyReward(_unixTimeStamp, _lastRewardTime),
                         transition: Transition.rightToLeft,
                         duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                       );
@@ -449,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       Get.to(
-                        WithdrawMTRK(),
+                        WithdrawMTRK(_mtrkBalance),
                         transition: Transition.rightToLeft,
                         duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
                       );
@@ -524,7 +285,6 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-
   Widget accountBalance() {
     double usdEarning = 0.0;
     return Container(
@@ -551,7 +311,7 @@ class _HomePageState extends State<HomePage> {
                           height: 50.0,
                           width: 50.0,
                           child: Image.asset('assets/icons/coin_logo.png'))),
-                      Expanded(child: Text(_mtrkBalance!=null ? _mtrkBalance : '0.0000',
+                      Expanded(child: Text(_mtrkBalance!=null ? _mtrkBalance : '0',
                         style: TextStyle(fontSize: 24.0, color: colorWhite),
                         textAlign: TextAlign.center,
                       )),
@@ -583,24 +343,47 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  static AdListener interstitialListener = AdListener(
-    // Called when an ad is successfully received.
-    onAdLoaded: (Ad ad) => print('Ad loaded.'),
-    // Called when an ad request failed.
-    onAdFailedToLoad: (Ad ad, LoadAdError error) {
-      ad.dispose();
-      print('Ad failed to load: $error');
-    },
-    // Called when an ad opens an overlay that covers the screen.
-    onAdOpened: (Ad ad) => print('Ad opened.'),
-    // Called when an ad removes an overlay that covers the screen.
-    onAdClosed: (Ad ad) {
-      ad.dispose();
-      print('Ad closed.');
-    },
-    // Called when an ad is in the process of leaving the application.
-    onApplicationExit: (Ad ad) => print('Left application.'),
-  );
+  Future _fetchUserHomeData () async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString('user_id');
+    var result = await fetchHomepageData(userId);
+
+    if (result != null) {
+
+      setState(() {
+        _mtrkBalance = result['mtrk_balance'].toString();
+        _referralCode = result['referral_code'].toString();
+        _referralEarning = result['referral_earning'].toString();
+        _referralSubEarning = result['referral_sub_level_earning'].toString();
+        _totalRefCount = result['total_ref_count'].toString();
+        _totalSubRefCount = result['total_sub_ref_count'].toString();
+        _username = result['username'].toString();
+        _unixTimeStamp = result['last_reward_unix_timestamp'].toString();
+        _lastRewardTime = result['last_reward_time'].toString();
+
+      });
+    }
+
+  }
+
+  Future _checkForPendingUploads() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString('user_id');
+    List<String> sudokuData = prefs.getStringList('sudoku_game_saved_data');
+    List<String> g2048Data = prefs.getStringList('g2048_game_saved_data');
+
+    if (sudokuData != null) {
+      String timestamp = sudokuData[0];
+      String amount = sudokuData[1];
+      updateUserBalanceForSudoku(userId, timestamp, amount);
+    }
+    if (g2048Data != null) {
+      String timestamp = g2048Data[0];
+      String amount = g2048Data[1];
+      updateUserBalanceFortyEight(userId, timestamp, amount);
+    }
+  }
+
 
 
 }

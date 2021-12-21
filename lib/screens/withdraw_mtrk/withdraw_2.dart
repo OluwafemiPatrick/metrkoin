@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:metrkoin/screens/withdraw_mtrk/withdraw_3.dart';
+import 'package:metrkoin/services/api_calls.dart';
 import 'package:metrkoin/utils/app_bar.dart';
 import 'package:metrkoin/utils/buttons.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
+import 'package:metrkoin/utils/spinner.dart';
+import 'package:metrkoin/utils/timestamp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WithdrawMTRK2 extends StatelessWidget {
+class WithdrawMTRK2 extends StatefulWidget {
   
   final String amount, address;
   WithdrawMTRK2(this.amount, this.address);
+
+  @override
+  _WithdrawMTRK2State createState() => _WithdrawMTRK2State();
+}
+
+class _WithdrawMTRK2State extends State<WithdrawMTRK2> {
+
+  bool _isLoading = false;
+  String _error = '';
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +31,7 @@ class WithdrawMTRK2 extends StatelessWidget {
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          padding: EdgeInsets.only(bottom: 20.0),
+          padding: EdgeInsets.only(bottom: 8.0),
           color: colorGreyBg,
           child: Column(
             children: [
@@ -34,16 +47,33 @@ class WithdrawMTRK2 extends StatelessWidget {
               Spacer(flex: 4),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: DefaultButtonPurple('Confirm', () {
-                  Get.to(
-                    WithdrawMTRK3('33500', 'klngif904o43j904gng9034g'),
-                    transition: Transition.rightToLeft,
-                    duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
-                  );
+                child: _isLoading ? Spinner() : DefaultButtonPurple('Confirm', () async {
+                  setState(() => _isLoading = true);
+
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String userId = prefs.getString('user_id');
+                  var result = await sendWithdrawalRequest(userId, widget.amount, getTimestamp(), widget.address);
+
+                  if (result == true) {
+                    Get.to(
+                      WithdrawMTRK3(widget.amount, widget.address),
+                      transition: Transition.rightToLeft,
+                      duration: Duration(milliseconds: PAGE_TRANSITION_DURATION),
+                    );
+                  } else {
+                    setState(() {
+                      _isLoading = false;
+                      _error = 'an error occurred, please check your network connection and try again';
+                    });
+                  }
                 }),
+              ),
+              SizedBox(height: 5.0),
+              Text(_error,
+                style: TextStyle(fontSize: 13.0, color: colorRed),
+                textAlign: TextAlign.center,
               )
-            ],
-          ),
+            ]),
         )
     );
   }
@@ -66,7 +96,7 @@ class WithdrawMTRK2 extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0, right: 5.0, left: 12.0),
-              child: Text('$amount MOK',
+              child: Text('${widget.amount} MTRK',
                 style: TextStyle(fontSize: 13.0, color: colorBlack),),
             ),
             Padding(
@@ -80,7 +110,7 @@ class WithdrawMTRK2 extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0, right: 5.0, left: 12.0),
-              child: Text('MetrKoin - $MY_BNB_ADDRESS',
+              child: Text('MetrKoin wallet ($MY_BNB_ADDRESS)',
                 style: TextStyle(fontSize: 13.0, color: colorBlack),),
             ),
             Padding(
@@ -93,12 +123,10 @@ class WithdrawMTRK2 extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0, right: 5.0, left: 12.0),
-              child: Text(address,
+              child: Text(widget.address,
                 style: TextStyle(fontSize: 13.0, color: colorBlack),),
             ),
           ] ),
     );
   }
-
-  
 }

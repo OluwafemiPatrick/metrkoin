@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-import 'package:metrkoin/models/authentication/auth.dart';
 import 'package:metrkoin/screens/authentication/referral_info.dart';
 import 'package:metrkoin/services/auth.dart';
 import 'package:metrkoin/utils/app_bar.dart';
@@ -16,6 +13,7 @@ import 'package:metrkoin/utils/constants.dart';
 import 'package:metrkoin/utils/return_to_home.dart';
 import 'package:metrkoin/utils/spinner.dart';
 import 'package:metrkoin/utils/timestamp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpPage extends StatefulWidget {
 
@@ -155,7 +153,7 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 Text(bySigningUp, style: TextStyle(fontSize: 14.0), textAlign: TextAlign.center,),
                 SizedBox(height: 10.0,),
-                DefaultButtonPurple('Sign up with Google', () {
+                DefaultButtonPurple('Sign up with Google', () async {
                   if (_username.isNotEmpty && _country.isNotEmpty) {
                     setState(() => _isLoading = true);
                     signInFuntions();
@@ -195,6 +193,7 @@ class _SignUpPageState extends State<SignUpPage> {
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     GoogleSignIn googleSignIn = GoogleSignIn();
     AuthServices _auth = new AuthServices();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try {
       setState(() => _spinnerMssg = 'checking device google accounts ...');
@@ -224,7 +223,10 @@ class _SignUpPageState extends State<SignUpPage> {
             String refByRefCount = refCodeCheck['ref_by_ref_count'].toString();
             String refByRefEarning = refCodeCheck['ref_by_ref_earning'].toString();
 
-            var uploadResult = await _auth.createUserAccountWithRefCode(_username, generateRandomCode(32),
+            String userId = generateRandomCode(32);
+            prefs.setString('user_id', userId);
+
+            var uploadResult = await _auth.createUserAccountWithRefCode(_username, userId,
                 googleSignInAccount.email, generateRandomCode(12), getCurrentDate(), _country, refByCode, refById,
                 refByChain, refByMTRKBal, refByMTRKEarning, refByRefCount, refByRefEarning);
 
@@ -272,7 +274,10 @@ class _SignUpPageState extends State<SignUpPage> {
         // no referral code was entered, upload user data directly
         else {
           setState(() => _spinnerMssg = 'creating new user account ...');
-          var uploadResult = await _auth.createUserAccount(_username, generateRandomCode(32),
+          String userId = generateRandomCode(32);
+          prefs.setString('user_id', userId);
+
+          var uploadResult = await _auth.createUserAccount(_username, userId,
               googleSignInAccount.email, generateRandomCode(12), getCurrentDate(), _country);
 
           // if server returns 200, complete google auth process
