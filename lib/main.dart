@@ -10,8 +10,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:metrkoin/services/auth.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:provider/provider.dart';
-import 'package:scoped_model/scoped_model.dart';
-
 import 'screens/authentication/wrapper.dart';
 
 
@@ -30,6 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<User>.value(
       value: AuthServices().user,
+      initialData: [],
       child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'MetrKoin',
@@ -37,7 +36,6 @@ class MyApp extends StatelessWidget {
             textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
             visualDensity: VisualDensity.adaptivePlatformDensity,
             primaryColor: colorWhite,
-            accentColor: colorWhite,
           ),
           home: SplashScreen(),
 
@@ -55,7 +53,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
-  Timer timer;
+  late Timer timer;
 
   @override
   void initState() {

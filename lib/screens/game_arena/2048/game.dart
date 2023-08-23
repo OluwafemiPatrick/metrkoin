@@ -7,17 +7,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Game {
   final int row;
   final int column;
-  int score;
-  int earning;
 
-  Game(this.row, this.column);
+  late int score;
+  late int earning;
+  late List<List<BoardCell>> _boardCells;
 
-  List<List<BoardCell>> _boardCells;
+  Game({required this.row, required this.column});
+
 
   void init() {
-    _boardCells = List<List<BoardCell>>();
     for (int r = 0; r < row; ++r) {
-      _boardCells.add(List<BoardCell>());
+      // _boardCells = [];
+      // _boardCells.add(List<BoardCell>());
       for (int c = 0; c < column; ++c) {
         _boardCells[r].add(BoardCell(
           row: r,
@@ -326,11 +327,13 @@ class Game {
 
 
 class BoardCell {
+
   int row, column;
   int number = 0;
   bool isMerged = false;
   bool isNew = false;
-  BoardCell({this.row, this.column, this.number, this.isNew});
+
+  BoardCell({required this.row, required this.column, required this.number, required this.isNew});
 
   bool isEmpty() {
     return number == 0;
@@ -345,4 +348,5 @@ class BoardCell {
   bool operator ==(other) {
     return other is BoardCell && number == other.number;
   }
+
 }

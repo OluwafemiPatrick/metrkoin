@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:metrkoin/models/game_arena/G2048_drop_down.dart';
 import 'package:metrkoin/screens/game_arena/2048/cell_box.dart';
 import 'package:metrkoin/screens/game_arena/2048/game.dart';
 import 'package:metrkoin/screens/game_arena/2048/scoreboard.dart';
-import 'package:metrkoin/services/ad_helper.dart';
 import 'package:metrkoin/utils/colors.dart';
 import 'package:metrkoin/utils/constants.dart';
 import 'package:metrkoin/utils/metrkoin_logo.dart';
-import 'package:metrkoin/utils/timestamp.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'colors.dart';
-import 'g2048_getter_and_setter.dart';
+
 
 class GameWidget extends StatefulWidget {
 
@@ -23,8 +18,7 @@ class GameWidget extends StatefulWidget {
 
 class _GameWidgetState extends State<GameWidget> {
 
-  Game _game;
-  MediaQueryData _queryData;
+  late Game _game;
   final int row=4;
   final int column=4;
   final double cellPadding=5.0;
@@ -36,8 +30,7 @@ class _GameWidgetState extends State<GameWidget> {
   @override
   void initState(){
     super.initState();
-    myBanner.load();
-    _game = Game(row,column);
+    _game = Game(row: row, column: column);
     newGame();
   }
 
@@ -87,26 +80,17 @@ class _GameWidgetState extends State<GameWidget> {
     }
   }
 
-  final BannerAd myBanner = BannerAd(
-    adUnitId: AdHelper.G2048BannerAdUnit,
-    size: AdSize.banner,
-    request: AdRequest(),
-    listener: AdListener(),
-  );
-
 
   @override
   Widget build(BuildContext context) {
-    AdWidget adWidget = AdWidget(ad: myBanner);
 
-    List<CellWidget> _cellWidget = List<CellWidget>();
+    List<CellWidget> _cellWidget = [];
     for(int r=0; r<row; ++r){
       for(int c=0;c<column;++c){
         _cellWidget.add(CellWidget(cell:_game.get(r,c),state:this));
       }
     }
-    _queryData =MediaQuery.of(context);
-    List<Widget> children=List<Widget>();
+    List<Widget> children = [];
     children.add(BoardGridWidget(this));
     children.addAll(_cellWidget);
 
@@ -163,12 +147,13 @@ class _GameWidgetState extends State<GameWidget> {
                       ),
                     ]),
               ),
-            ],),
+            ],
+          ),
           Spacer(flex: 1),
           Container(
               margin: _gameMargin,
-              width: _queryData.size.width,
-              height: _queryData.size.width,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.width,
               child: GestureDetector(
                 onVerticalDragUpdate: (detail) {
                   if (detail.delta.distance == 0 || _isDragging) {
@@ -209,20 +194,14 @@ class _GameWidgetState extends State<GameWidget> {
                 ),
               )),
           Spacer(flex: 2),
-          Container(
-            height: 60.0,
-            margin: EdgeInsets.only(bottom: 5.0),
-            child: Center(child: adWidget),
-          )
         ])
     );
   }
 
 
   Size boardSize() {
-    assert(_queryData != null);
-    Size size = _queryData.size;
-    num width = size.width - _gameMargin.left - _gameMargin.right;
+    Size size = MediaQuery.of(context).size;
+    double width = size.width - _gameMargin.left - _gameMargin.right;
     return Size(width, width);
   }
 
@@ -302,8 +281,6 @@ class _GameWidgetState extends State<GameWidget> {
     }
 
   }
-
-
 }
 
 
@@ -317,14 +294,14 @@ class BoardGridWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size boardSize = _state.boardSize();
     double width = (boardSize.width - (_state.column + 1) * _state.cellPadding) / _state.column;
-    List<CellBox> _backgroundBox = List<CellBox>();
+    List<CellBox> _backgroundBox = [];
     for (int r = 0; r < _state.row; ++r) {
       for (int c = 0; c < _state.column; ++c) {
         CellBox box = CellBox(
           left: c * width + _state.cellPadding * (c + 1),
           top: r * width + _state.cellPadding * (r + 1),
           size: width,
-          color: Colors.grey[400],
+          color: Colors.grey.shade400,
         //  color: colorButtonGrey,
         );
         _backgroundBox.add(box);
@@ -354,12 +331,12 @@ class BoardGridWidget extends StatelessWidget {
 class AnimatedCellWidget extends AnimatedWidget {
 
   final BoardCell cell;
-  BoardCell cell2 = new BoardCell(row: 0);
+  BoardCell cell2 = new BoardCell(row: 0, column: 0, number: 0, isNew: false);
   final _GameWidgetState state;
 
   AnimatedCellWidget(
-      {Key key, this.cell, this.state, Animation<double> animation})
-      : super(key: key, listenable: animation);
+      {required this.cell, required this.state, required Animation<double> animation})
+      : super(listenable: animation);
 
   _saveValue(int row, column, number) {
 
@@ -448,7 +425,7 @@ class AnimatedCellWidget extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> animation = listenable;
+    Animation<double> animation = listenable;
     double animationValue = animation.value;
     Size boardSize = state.boardSize();
     double width = (boardSize.width - (state.column + 1) * state.cellPadding) /
@@ -464,8 +441,7 @@ class AnimatedCellWidget extends AnimatedWidget {
         top: cell.row * width +
             state.cellPadding * (cell.row + 1) + width / 2 * (1 - animationValue),
         size: width * animationValue,
-        color: boxColor.containsKey(cell.number)
-            ? boxColor[cell.number] : boxColor[boxColor.keys.last],
+        color: boxColor.containsKey(cell.number) ? boxColor[cell.number]! : boxColor[boxColor.keys.last]!,
         text: Text(
           cell.number.toString(),
           style: TextStyle(
@@ -486,23 +462,22 @@ class AnimatedCellWidget extends AnimatedWidget {
 class CellWidget extends StatefulWidget {
   final BoardCell cell;
   final _GameWidgetState state;
-  CellWidget({this.cell, this.state});
+  CellWidget({required this.cell, required this.state});
   _CellWidgetState createState() => _CellWidgetState();
 }
 
 
 class _CellWidgetState extends State<CellWidget>
     with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Animation<double> animation;
+
+  late AnimationController controller;
+  late Animation<double> animation;
 
   @override
   initState() {
     super.initState();
     controller = AnimationController(
-      duration: Duration(
-        milliseconds: 200,
-      ),
+      duration: Duration(milliseconds: 200),
       vsync: this,
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(controller);

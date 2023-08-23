@@ -247,31 +247,29 @@ class _AccountLogState extends State<AccountLog> {
 
   Future _fetchLogData () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userId = prefs.getString('user_id');
-    var result = await fetchLogData(userId);
+    String? userId = prefs.getString('user_id');
+    var result = await fetchLogData(userId!);
 
-    if (result != null) {
-      setState(() {
-        accountLogDataAll = result.reversed.toList();
-        _isLoading = false;
+    setState(() {
+      accountLogDataAll = result.reversed.toList();
+      _isLoading = false;
 
-        for (var data in result.reversed.toList()) {
-          if (data.type == 'withdrawal') {
-            accountLogDataWithdrawal.add(data);
-          }
+      for (var data in result.reversed.toList()) {
+        if (data.type == 'withdrawal') {
+          accountLogDataWithdrawal.add(data);
         }
-        for (var data in result.reversed.toList()) {
-          if (data.type == 'game') {
-            accountLogDataGames.add(data);
-          }
+      }
+      for (var data in result.reversed.toList()) {
+        if (data.type == 'game') {
+          accountLogDataGames.add(data);
         }
-        for (var data in result.reversed.toList()) {
-          if (data.type == 'daily_reward') {
-            accountLogDataRewards.add(data);
-          }
+      }
+      for (var data in result.reversed.toList()) {
+        if (data.type == 'daily_reward') {
+          accountLogDataRewards.add(data);
         }
-      });
-    }
+      }
+    });
 
   }
 

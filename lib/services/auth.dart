@@ -52,6 +52,8 @@ class AuthServices{
       // upload failed
       return false;
     }
+
+    return false;
   }
 
 
@@ -74,6 +76,8 @@ class AuthServices{
       // upload failed
       return false;
     }
+
+    return false;
   }
 
 

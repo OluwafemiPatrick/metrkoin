@@ -22,8 +22,8 @@ class _DailyRewardState extends State<DailyReward> {
 
   bool _isEligible = false;
   bool _isLoading = false;
-  String _unixTimestamp;
-  String _timestamp;
+  String _unixTimestamp = '';
+  String _timestamp = '';
   String _newTimeToClaim = '';
 
   @override
@@ -81,11 +81,11 @@ class _DailyRewardState extends State<DailyReward> {
           margin: EdgeInsets.symmetric(horizontal: 30.0),
           child: _isLoading ? Spinner() : DefaultButtonPurple('Claim Reward', () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            String userId = prefs.getString('user_id');
+            String? userId = prefs.getString('user_id');
 
             if (_isEligible) {
               setState(() => _isLoading = true);
-              await sendDailyReward(userId, getTimestamp(), getUnixTimestamp()).then((value) {
+              await sendDailyReward(userId!, getTimestamp(), getUnixTimestamp()).then((value) {
                 // navigate to home page
                 setState(() => _isLoading = false);
               });

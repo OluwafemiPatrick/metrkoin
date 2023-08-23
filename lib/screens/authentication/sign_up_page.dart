@@ -67,9 +67,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 maxLines: 1,
                 autofocus: false,
                 keyboardType: TextInputType.name,
-                decoration: InputDecoration(
-                    hintText: "MetrKoin User", hintStyle: TextStyle(fontSize: 14.0)),
-                onSaved: (value) => _username = value.trim(),
+                decoration: InputDecoration(hintText: "MetrKoin User", hintStyle: TextStyle(fontSize: 14.0)),
+                onSaved: (value) => _username = value!.trim(),
                 style: TextStyle(fontSize: 14.0),
                 onChanged: (value) {
                   setState(() {
@@ -105,9 +104,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 maxLines: 1,
                 autofocus: false,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                    hintText: "hy40hw6M", hintStyle: TextStyle(fontSize: 14.0)),
-                onSaved: (value) => _refCode = value.trim(),
+                decoration: InputDecoration(hintText: "hy40hw6M", hintStyle: TextStyle(fontSize: 14.0)),
+                onSaved: (value) => _refCode = value!.trim(),
                 style: TextStyle(fontSize: 14.0),
                 onChanged: (value) {
                   setState(() => _refCode = value );
@@ -123,9 +121,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 maxLines: 1,
                 autofocus: false,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                    hintText: "Nigeria", hintStyle: TextStyle(fontSize: 14.0)),
-                onSaved: (value) => _country = value.trim(),
+                decoration: InputDecoration(hintText: "Nigeria", hintStyle: TextStyle(fontSize: 14.0)),
+                onSaved: (value) => _country = value!.trim(),
                 style: TextStyle(fontSize: 14.0),
                 onChanged: (value) {
                   setState(() {

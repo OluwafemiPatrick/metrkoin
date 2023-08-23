@@ -8,7 +8,7 @@ class CellBox extends StatelessWidget {
   final Color color;
   final Text text;
 
-  CellBox({this.left, this.top, this.size, this.color, this.text});
+  CellBox({required this.left, required this.top, required this.size, required this.color, required this.text});
 
   @override
   Widget build(BuildContext context) {

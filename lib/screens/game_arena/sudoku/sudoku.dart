@@ -37,7 +37,7 @@ class _SudokuState extends State<Sudoku> {
           );
         }
 
-        SudokuState sudokuState = snapshot.data;
+        SudokuState sudokuState = snapshot.data!;
         BootstrapPage bootstrapPage = BootstrapPage();
         SudokuGamePage sudokuGamePage = SudokuGamePage();
 
@@ -49,7 +49,6 @@ class _SudokuState extends State<Sudoku> {
               textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
               visualDensity: VisualDensity.adaptivePlatformDensity,
               primaryColor: colorWhite,
-              accentColor: colorWhite,
             ),
             home: bootstrapPage,
             routes: <String, WidgetBuilder>{

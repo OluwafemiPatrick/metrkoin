@@ -21,7 +21,7 @@ Future<dynamic> fetchHomepageData (String userId) async {
 }
 
 
-Future<List<AccountLogModel>> fetchLogData (String userId) async {
+Future<List<AccountLogModel>?> fetchLogData (String userId) async {
 
   final url = baseUrl + 'fetchLogData?userId=$userId';
   final response = await http.get(Uri.parse(url));

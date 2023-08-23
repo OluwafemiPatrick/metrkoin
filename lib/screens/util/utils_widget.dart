@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:metrkoin/utils/colors.dart';
 
-Widget UtilsPageWidget({String title, Color iconColor, Function function,
-    IconData icon, String imageAsset}) {
+Widget UtilsPageWidget({required String title, required Color iconColor, required Function function,
+    required IconData icon, required String imageAsset}) {
   return GestureDetector(
     child: Container(
       height: 45.0,
@@ -14,7 +14,7 @@ Widget UtilsPageWidget({String title, Color iconColor, Function function,
                 children: [
                   SizedBox(
                       width: 24.0,
-                      child: icon!=null ? Icon(icon, size: 22.0, color: iconColor,)
+                      child: imageAsset.isEmpty ? Icon(icon, size: 22.0, color: iconColor,)
                           : Image.asset(imageAsset, height: 24.0, width: 24.0,)
                   ),
                   Expanded(

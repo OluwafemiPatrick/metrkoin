@@ -25,61 +25,71 @@ class _UtilsScreenState extends State<UtilsScreen> {
                 title: 'Listed Exchanges',
                 icon: Icons.gavel,
                 iconColor: colorBlue,
-                function: () { }
+                function: () { },
+                imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'MTRK Info',
                   icon: Icons.room_preferences_outlined,
                   iconColor: colorGold,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'Rate Calculator',
                   icon: Icons.calculate_outlined,
                   iconColor: colorRed,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'About MetrKoin',
                   icon: Icons.details_outlined,
                   iconColor: colorBlue,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'F.A.Q',
                   icon: Icons.help_outline,
                   iconColor: colorRed,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'Contact Support',
                   icon: Icons.contact_support_outlined,
                   iconColor: colorBlue,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'Rate on Google Play',
                   icon: Icons.star,
                   iconColor: colorGold,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'Twitter',
                   imageAsset: 'assets/images/icon_twitter.png',
                   iconColor: colorRed,
-                  function: () { }
+                  function: () { },
+                  icon: Icons.nat
               ),
               UtilsPageWidget(
                   title: 'Visit Website',
                   icon: Icons.public_outlined,
                   iconColor: colorButtonGrey,
-                  function: () { }
+                  function: () { },
+                  imageAsset: ''
               ),
               UtilsPageWidget(
                   title: 'Telegram Channel',
                   imageAsset: 'assets/images/icon_telegram.png',
                   iconColor: colorRed,
-                  function: () { }
+                  function: () { },
+                  icon: Icons.nat
               ),
             ] ),
         ),

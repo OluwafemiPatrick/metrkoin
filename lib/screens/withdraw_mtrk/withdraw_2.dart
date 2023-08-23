@@ -51,7 +51,7 @@ class _WithdrawMTRK2State extends State<WithdrawMTRK2> {
                   setState(() => _isLoading = true);
 
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  String userId = prefs.getString('user_id');
+                  String userId = prefs.getString('user_id')!;
                   var result = await sendWithdrawalRequest(userId, widget.amount, getTimestamp(), widget.address);
 
                   if (result == true) {

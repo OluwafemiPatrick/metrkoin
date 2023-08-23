@@ -37,7 +37,6 @@ class _SudokuGamePageState extends State<SudokuGamePage>
   bool _manualPause = false;
 
   Timer _timer;
-  AdListener listenerT = AdListener();
   SudokuState get _state => ScopedModel.of<SudokuState>(context);
   bool _isOnlyReadGrid(int index) => _state.sudoku.puzzle[index] != -1;
 
@@ -53,9 +52,6 @@ class _SudokuGamePageState extends State<SudokuGamePage>
   @override
   void initState() {
     _gaming();
-    myBanner.load();
-    hintAdReward.load();
-    lifeAdReward.load();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
